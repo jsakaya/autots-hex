@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=65", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "autots-hex"
+version = "0.1.0"
+description = "Hexagonal reimplementation of AutoTS leveraging Darts as backend"
+authors = [{name = "Chronocast", email = "team@chronocast.ai"}]
+readme = "README.md"
+license = {text = "Proprietary"}
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.23",
+    "pandas>=1.5",
+    "darts>=0.27",
+    "pydantic>=1.10",
+    "typer>=0.9",
+    "structlog>=23.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "black>=23.9",
+    "ruff>=0.1",
+    "mypy>=1.5",
+    "types-setuptools",
+]
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "I", "B"]
+ignore = ["E203"]
+exclude = [".git", "__pycache__", "build", "dist"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+addopts = "-ra -q"
+testpaths = ["tests"]
