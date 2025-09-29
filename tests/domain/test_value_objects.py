@@ -109,10 +109,13 @@ class TestHelpers:
         assert str(freq).lower() == "h"
 
     def test_infer_frequency_failure(self) -> None:
-        index = pd.DatetimeIndex([pd.Timestamp("2024-01-01"), pd.Timestamp("2024-01-03")])
-        # Duplicate to break inference (two-point irregular spacing leads to None)
-        broken = index.insert(1, pd.Timestamp("2024-01-02"))
-        irregular = broken.delete(2)
+        irregular = pd.DatetimeIndex(
+            [
+                pd.Timestamp("2024-01-01"),
+                pd.Timestamp("2024-01-03"),
+                pd.Timestamp("2024-01-04"),
+            ]
+        )
         with pytest.raises(FrequencyError):
             infer_frequency_from_index(irregular)
 

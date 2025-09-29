@@ -188,11 +188,23 @@ def infer_frequency_from_index(index: pd.DatetimeIndex) -> Frequency:
     """Infer a pandas frequency alias and wrap it as a Frequency."""
     try:
         alias = pd.infer_freq(index)
-    except ValueError as exc:  # pragma: no cover - pandas raises ValueError for short index
-        raise FrequencyError("Unable to infer frequency from index") from exc
-    if alias is None:
-        raise FrequencyError("Unable to infer frequency from index")
-    return Frequency(alias)
+    except ValueError:
+        alias = None
+    if alias is not None:
+        return Frequency(alias)
+    if len(index) >= 2:
+        deltas = np.diff(index.view(np.int64))
+        if deltas.size == 0 or np.any(deltas <= 0):
+            raise FrequencyError("Unable to infer frequency from index")
+        if len(np.unique(deltas)) != 1:
+            raise FrequencyError("Unable to infer frequency from index")
+        delta = pd.Timedelta(int(deltas[0]), unit="ns")
+        try:
+            offset = pd.tseries.frequencies.to_offset(delta)
+        except Exception as exc:
+            raise FrequencyError("Unable to infer frequency from index") from exc
+        return Frequency(offset.freqstr)
+    raise FrequencyError("Unable to infer frequency from index")
 
 
 def validate_forecast_horizon(horizon: ForecastHorizon, data: TimeSeriesSlice) -> None:
